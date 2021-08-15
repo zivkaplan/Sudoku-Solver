@@ -28,6 +28,10 @@ const sudoku = {
         this.board = newBoard;
     },
 
+    getBoard: function () {
+        return this.board;
+    },
+
     checkRow: function (currentCell, num) {
         for (let i = 0; i < 9; i++) {
             if (this.board[currentCell.x][i] === num && i !== currentCell.y) {
@@ -90,10 +94,6 @@ const sudoku = {
         return false;
     },
 
-    printBoard: function () {
-        console.log(this.board);
-    },
-
     findEmptyCell: function () {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
@@ -125,7 +125,10 @@ const buildGridBoard = (function () {
 
 const solveBtn = document.querySelector('.solve-btn');
 solveBtn.addEventListener('click', function (e) {
-    get2DArray();
+    const board = get2DArray();
+    sudoku.setBoard(board);
+    sudoku.solve();
+    showSolution(sudoku.getBoard());
 });
 
 function get2DArray() {
@@ -134,7 +137,12 @@ function get2DArray() {
     cells.forEach(
         (cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value))
     );
-    sudoku.setBoard(board);
-    sudoku.solve();
-    sudoku.printBoard();
+    return board;
+}
+
+function showSolution(board) {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(
+        (cell) => (cell.value = board[cell.dataset.x][cell.dataset.y])
+    );
 }
