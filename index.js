@@ -52,10 +52,16 @@ const sudoku = {
             { start: 3, end: 5 },
             { start: 6, end: 8 },
         ];
-        const squareRange = { x: limits.find((element) => element.end >= currentCell.x), y: limits.find((element) => element.end >= currentCell.y) };
+        const squareRange = {
+            x: limits.find((element) => element.end >= currentCell.x),
+            y: limits.find((element) => element.end >= currentCell.y),
+        };
         for (let i = squareRange.x.start; i <= squareRange.x.end; i++) {
             for (let j = squareRange.y.start; j <= squareRange.y.end; j++) {
-                if (this.board[i][j] === num && (i !== currentCell.x || j !== currentCell.y)) {
+                if (
+                    this.board[i][j] === num &&
+                    (i !== currentCell.x || j !== currentCell.y)
+                ) {
                     return false;
                 }
             }
@@ -64,7 +70,11 @@ const sudoku = {
     },
 
     validateCell: function (currentCell, num) {
-        return this.checkRow(currentCell, num) && this.checkCol(currentCell, num) && this.checkSquare(currentCell, num);
+        return (
+            this.checkRow(currentCell, num) &&
+            this.checkCol(currentCell, num) &&
+            this.checkSquare(currentCell, num)
+        );
     },
 
     solve: function () {
@@ -75,48 +85,53 @@ const sudoku = {
                     for (let num = 1; num <= 9; num++) {
                         if (this.validateCell(cell, num)) {
                             this.board[x][y] = num;
-                            console.log(this.board);
-                            this.solve();
+                            if (this.solve()) {
+                                return true;
+                            }
                         }
+                        this.board[x][y] = 0;
                     }
-                    return false;
                 }
             }
         }
+        return false;
+    },
+    printBoard: function () {
         console.log(this.board);
-        return true;
     },
 };
 
-const buildGridBoard = (function () {
-    const board = document.querySelector(".board");
-    for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-            const cell = document.createElement("input");
-            cell.classList.add("cell");
-            cell.setAttribute("type", "number");
-            cell.setAttribute("min", "0");
-            cell.setAttribute("max", "9");
-            cell.dataset.x = i;
-            cell.dataset.y = j;
-            cell.value = 0;
-            board.append(cell);
-        }
-    }
-})();
+// const buildGridBoard = (function () {
+//     const board = document.querySelector('.board');
+//     for (let i = 0; i < 9; i++) {
+//         for (let j = 0; j < 9; j++) {
+//             const cell = document.createElement('input');
+//             cell.classList.add('cell');
+//             cell.setAttribute('type', 'number');
+//             cell.setAttribute('min', '0');
+//             cell.setAttribute('max', '9');
+//             cell.dataset.x = i;
+//             cell.dataset.y = j;
+//             cell.value = 0;
+//             board.append(cell);
+//         }
+//     }
+// })();
 
-const solveBtn = document.querySelector(".solve-btn");
-solveBtn.addEventListener("click", function (e) {
-    get2DArray();
-});
+// const solveBtn = document.querySelector('.solve-btn');
+// solveBtn.addEventListener('click', function (e) {
+//     get2DArray();
+// });
 
-function get2DArray() {
-    const board = [[], [], [], [], [], [], [], [], []];
-    const cells = document.querySelectorAll(".cell");
-    cells.forEach((cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value)));
-    console.log(board);
-    sudoku.setBoard(board);
-    sudoku.solve();
-}
-// console.log(sudoku.board);
-// sudoku.solve();
+// function get2DArray() {
+//     const board = [[], [], [], [], [], [], [], [], []];
+//     const cells = document.querySelectorAll('.cell');
+//     cells.forEach(
+//         (cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value))
+//     );
+//     sudoku.setBoard(board);
+//     sudoku.solve();
+//     sudoku.printBoard();
+// }
+sudoku.solve();
+sudoku.printBoard();
