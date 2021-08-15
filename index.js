@@ -78,60 +78,63 @@ const sudoku = {
     },
 
     solve: function () {
+        const emptyCell = this.findEmptyCell();
+        if (!emptyCell) return true;
+        for (let num = 1; num <= 9; num++) {
+            if (this.validateCell(emptyCell, num)) {
+                this.board[emptyCell.x][emptyCell.y] = num;
+                if (this.solve()) return true;
+            }
+            this.board[emptyCell.x][emptyCell.y] = 0;
+        }
+        return false;
+    },
+
+    printBoard: function () {
+        console.log(this.board);
+    },
+
+    findEmptyCell: function () {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
                 if (!this.board[x][y]) {
-                    const cell = { x, y };
-                    for (let num = 1; num <= 9; num++) {
-                        if (this.validateCell(cell, num)) {
-                            this.board[x][y] = num;
-                            if (this.solve()) {
-                                return true;
-                            }
-                        }
-                        this.board[x][y] = 0;
-                    }
+                    return { x, y };
                 }
             }
         }
         return false;
     },
-    printBoard: function () {
-        console.log(this.board);
-    },
 };
 
-// const buildGridBoard = (function () {
-//     const board = document.querySelector('.board');
-//     for (let i = 0; i < 9; i++) {
-//         for (let j = 0; j < 9; j++) {
-//             const cell = document.createElement('input');
-//             cell.classList.add('cell');
-//             cell.setAttribute('type', 'number');
-//             cell.setAttribute('min', '0');
-//             cell.setAttribute('max', '9');
-//             cell.dataset.x = i;
-//             cell.dataset.y = j;
-//             cell.value = 0;
-//             board.append(cell);
-//         }
-//     }
-// })();
+const buildGridBoard = (function () {
+    const board = document.querySelector('.board');
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            const cell = document.createElement('input');
+            cell.classList.add('cell');
+            cell.setAttribute('type', 'number');
+            cell.setAttribute('min', '0');
+            cell.setAttribute('max', '9');
+            cell.dataset.x = i;
+            cell.dataset.y = j;
+            cell.value = 0;
+            board.append(cell);
+        }
+    }
+})();
 
-// const solveBtn = document.querySelector('.solve-btn');
-// solveBtn.addEventListener('click', function (e) {
-//     get2DArray();
-// });
+const solveBtn = document.querySelector('.solve-btn');
+solveBtn.addEventListener('click', function (e) {
+    get2DArray();
+});
 
-// function get2DArray() {
-//     const board = [[], [], [], [], [], [], [], [], []];
-//     const cells = document.querySelectorAll('.cell');
-//     cells.forEach(
-//         (cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value))
-//     );
-//     sudoku.setBoard(board);
-//     sudoku.solve();
-//     sudoku.printBoard();
-// }
-sudoku.solve();
-sudoku.printBoard();
+function get2DArray() {
+    const board = [[], [], [], [], [], [], [], [], []];
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(
+        (cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value))
+    );
+    sudoku.setBoard(board);
+    sudoku.solve();
+    sudoku.printBoard();
+}
