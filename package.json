@@ -1,0 +1,19 @@
+{
+  "name": "sudoku.solver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShayaG94/Sudoku.Solver.git"
+  },
+  "author": "S&Z",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShayaG94/Sudoku.Solver/issues"
+  },
+  "homepage": "https://github.com/ShayaG94/Sudoku.Solver#readme"
+}
