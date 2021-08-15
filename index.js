@@ -1,6 +1,6 @@
-const sudoku = function (board) {
-    // const board = [
-    //     [null, 5, 4, 6, 7, 8, 9, 1, 2], //0
+const sudoku = {
+    // board: [
+    //     [null, 3, 4, 6, 7, 8, 9, 1, 2], //0
     //     [6, null, 2, 1, 9, 5, 3, 4, 8], //1
     //     [1, 9, null, 3, 4, 2, 5, 6, 7], //2
 
@@ -11,26 +11,42 @@ const sudoku = function (board) {
     //     [9, 6, 1, 5, 3, 7, null, 8, 4], //6
     //     [2, 8, 7, 4, 1, 9, 6, null, 5], //7
     //     [3, 4, 5, 2, 8, 6, 1, 7, null], //8
-    // ];
-    function checkRow(currentCell, num) {
+    // ]
+    board: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ],
+
+    setBoard: function (newBoard) {
+        this.board = newBoard;
+    },
+
+    checkRow: function (currentCell, num) {
         for (let i = 0; i < 9; i++) {
-            if (board[currentCell.x][i] === num && i !== currentCell.y) {
+            if (this.board[currentCell.x][i] === num && i !== currentCell.y) {
                 return false;
             }
         }
         return true;
-    }
+    },
 
-    function checkCol(currentCell, num) {
+    checkCol: function (currentCell, num) {
         for (let i = 0; i < 9; i++) {
-            if (board[i][currentCell.y] === num && i !== currentCell.x) {
+            if (this.board[i][currentCell.y] === num && i !== currentCell.x) {
                 return false;
             }
         }
         return true;
-    }
+    },
 
-    function checkSquare(currentCell, num) {
+    checkSquare: function (currentCell, num) {
         const limits = [
             { start: 0, end: 2 },
             { start: 3, end: 5 },
@@ -39,37 +55,37 @@ const sudoku = function (board) {
         const squareRange = { x: limits.find((element) => element.end >= currentCell.x), y: limits.find((element) => element.end >= currentCell.y) };
         for (let i = squareRange.x.start; i <= squareRange.x.end; i++) {
             for (let j = squareRange.y.start; j <= squareRange.y.end; j++) {
-                if (board[i][j] === num && (i !== currentCell.x || j !== currentCell.y)) {
+                if (this.board[i][j] === num && (i !== currentCell.x || j !== currentCell.y)) {
                     return false;
                 }
             }
         }
         return true;
-    }
+    },
 
-    function validateCell(currentCell, num) {
-        return checkRow(currentCell, num) && checkCol(currentCell, num) && checkSquare(currentCell, num);
-    }
+    validateCell: function (currentCell, num) {
+        return this.checkRow(currentCell, num) && this.checkCol(currentCell, num) && this.checkSquare(currentCell, num);
+    },
 
-    function solve() {
+    solve: function () {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
-                if (!board[x][y]) {
+                if (!this.board[x][y]) {
                     const cell = { x, y };
                     for (let num = 1; num <= 9; num++) {
-                        if (validateCell(cell, num)) {
-                            board[x][y] = num;
-                            solve();
+                        if (this.validateCell(cell, num)) {
+                            this.board[x][y] = num;
+                            console.log(this.board);
+                            this.solve();
                         }
                     }
                     return false;
                 }
             }
         }
-        console.log(board);
+        console.log(this.board);
         return true;
-    }
-    return { solve };
+    },
 };
 
 const buildGridBoard = (function () {
@@ -99,6 +115,8 @@ function get2DArray() {
     const cells = document.querySelectorAll(".cell");
     cells.forEach((cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value)));
     console.log(board);
-    sudoku(board).solve();
-    console.log(board);
+    sudoku.setBoard(board);
+    sudoku.solve();
 }
+// console.log(sudoku.board);
+// sudoku.solve();
