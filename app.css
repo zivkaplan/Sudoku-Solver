@@ -1,0 +1,18 @@
+body {
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(9, calc(100% / 9));
+    grid-template-rows: repeat(9, calc(100% / 9));
+    margin: auto;
+}
+
+.cell {
+    text-align: center;
+}
