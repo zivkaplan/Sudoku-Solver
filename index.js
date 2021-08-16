@@ -71,6 +71,7 @@ const sudoku = {
     solvePuzzle: function () {
         const emptyCell = this.findEmptyCell();
         if (!emptyCell) return true;
+        this.board[emptyCell.x][emptyCell.y] = 0;
         for (let num = 1; num <= 9; num++) {
             if (this.validateCell(emptyCell, num)) {
                 this.board[emptyCell.x][emptyCell.y] = num;

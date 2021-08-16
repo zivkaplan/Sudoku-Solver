@@ -11,7 +11,7 @@ body {
     justify-content: center;
 }
 .game-area {
-    border: 4px solid blue;
+    border: 5px solid blue;
     padding: 0;
 }
 
@@ -39,11 +39,11 @@ body {
 }
 .cell.x-3,
 .cell.x-6 {
-    border-bottom: 2px solid aqua;
+    border-bottom: 2px solid;
 }
 .cell.x-4,
 .cell.x-7 {
-    border-top: 2px solid aqua;
+    border-top: 2px solid;
 }
 
 .cell.y-1 {
@@ -54,11 +54,11 @@ body {
 }
 .cell.y-3,
 .cell.y-6 {
-    border-right: 2px solid aqua;
+    border-right: 2px solid;
 }
 .cell.y-4,
 .cell.y-7 {
-    border-left: 2px solid aqua;
+    border-left: 2px solid;
 }
 
 input::-webkit-outer-spin-button,
