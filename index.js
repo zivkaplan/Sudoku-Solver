@@ -133,6 +133,7 @@ solveBtn.addEventListener('click', function (e) {
 
 function get2DArray() {
     const board = [[], [], [], [], [], [], [], [], []];
+    // const board = [...new Array(9)].map((el) => new Array(9));
     const cells = document.querySelectorAll('.cell');
     cells.forEach(
         (cell) => (board[cell.dataset.x][cell.dataset.y] = parseInt(cell.value))
