@@ -71,7 +71,6 @@ const sudoku = {
     solvePuzzle: function () {
         const emptyCell = this.findEmptyCell();
         if (!emptyCell) return true;
-        // this.board[emptyCell.x][emptyCell.y] = 0;
         for (let num = 1; num <= 9; num++) {
             if (this.validateCell(emptyCell, num)) {
                 this.board[emptyCell.x][emptyCell.y] = num;
@@ -107,7 +106,6 @@ const buildGridBoard = (function () {
             cell.setAttribute("max", "9");
             cell.dataset.x = i;
             cell.dataset.y = j;
-            // cell.value = "";
             board.append(cell);
         }
     }
