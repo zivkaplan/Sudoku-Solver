@@ -56,7 +56,6 @@ const sudoku = (function () {
 
     function solve() {
         const firstEmptyCell = { ...findEmptyCell(), iterations: 0 };
-        console.log(`first empty cell: ${firstEmptyCell.x}, ${firstEmptyCell.y}, ${firstEmptyCell.iterations}`);
 
         function solvePuzzle() {
             const emptyCell = findEmptyCell();
@@ -64,15 +63,11 @@ const sudoku = (function () {
             for (let num = 1; num <= 9; num++) {
                 if (emptyCell.x === firstEmptyCell.x && emptyCell.y === firstEmptyCell.y) {
                     firstEmptyCell.iterations++;
-                    console.log(`iteration: ${firstEmptyCell.iterations}`);
-                    // if (firstEmptyCell.iterations > 9) return false;
                 }
                 if (validateCell(emptyCell, num)) {
                     board[emptyCell.x][emptyCell.y] = num;
                     if (solvePuzzle()) {
                         return true;
-                        // } else if (firstEmptyCell.iterations > 9) {
-                        //     return false;
                     }
                 }
                 board[emptyCell.x][emptyCell.y] = "";
@@ -120,7 +115,7 @@ const htmlGame = {
         return board;
     },
 
-    isSolved: function () {
+    solve: function () {
         const board = this.get2DArray();
         sudoku.setBoard(board);
         return sudoku.solve();
@@ -132,7 +127,15 @@ const htmlGame = {
         cells.forEach((cell) => (cell.value = board[cell.dataset.x][cell.dataset.y]));
     },
 
+    clearBoard: function () {
+        const cells = document.querySelectorAll(".cell");
+
+        cells.forEach((cell) => (cell.value = ""));
+    },
+
     solveBtn: document.querySelector(".solve-btn"),
+
+    clearBtn: document.querySelector(".clear-btn"),
 };
 
 const main = (function () {
@@ -141,11 +144,13 @@ const main = (function () {
     });
 
     htmlGame.solveBtn.addEventListener("click", function (e) {
-        if (htmlGame.isSolved()) {
+        if (htmlGame.solve()) {
             const solvedBoard = sudoku.getBoard();
             htmlGame.showSolution(solvedBoard);
         } else {
             alert("Unsolavable Puzzle!");
         }
     });
+
+    htmlGame.clearBtn.addEventListener("click", htmlGame.clearBoard);
 })();

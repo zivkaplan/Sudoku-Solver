@@ -8,6 +8,8 @@ body {
 
 .container {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
     width: min(60vh, 80vw);
 }
@@ -15,6 +17,7 @@ body {
     border: 5px solid blue;
     padding: 0;
     width: 100%;
+    margin-bottom: 1em;
 }
 
 .board {
@@ -22,7 +25,7 @@ body {
     grid-template-columns: repeat(9, calc(100% / 9));
     grid-template-rows: repeat(9, calc(100% / 9));
     margin: auto;
-    aspect-ratio: auto 400 / 400;
+    aspect-ratio: auto 1 / 1;
 }
 
 .cell {
@@ -61,6 +64,12 @@ body {
 .cell.y-4,
 .cell.y-7 {
     border-left: 2px solid;
+}
+
+.buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
 
 input::-webkit-outer-spin-button,
