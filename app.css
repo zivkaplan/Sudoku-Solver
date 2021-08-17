@@ -9,10 +9,12 @@ body {
 .container {
     display: flex;
     justify-content: center;
+    width: min(60vh, 80vw);
 }
 .game-area {
     border: 5px solid blue;
     padding: 0;
+    width: 100%;
 }
 
 .board {
