@@ -47,10 +47,12 @@ body {
 .cell.x-9 {
     border-bottom: 0px;
 }
+
 .cell.x-3,
 .cell.x-6 {
     border-bottom: 2px solid black;
 }
+
 .cell.x-4,
 .cell.x-7 {
     border-top: 2px solid black;
@@ -59,13 +61,16 @@ body {
 .cell.y-1 {
     border-left: 0px;
 }
+
 .cell.y-9 {
     border-right: 0px;
 }
+
 .cell.y-3,
 .cell.y-6 {
     border-right: 2px solid black;
 }
+
 .cell.y-4,
 .cell.y-7 {
     border-left: 2px solid black;
