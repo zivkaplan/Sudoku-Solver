@@ -1,3 +1,8 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 body {
     display: flex;
     height: 100vh;
@@ -44,11 +49,11 @@ body {
 }
 .cell.x-3,
 .cell.x-6 {
-    border-bottom: 2px solid;
+    border-bottom: 2px solid black;
 }
 .cell.x-4,
 .cell.x-7 {
-    border-top: 2px solid;
+    border-top: 2px solid black;
 }
 
 .cell.y-1 {
@@ -59,11 +64,11 @@ body {
 }
 .cell.y-3,
 .cell.y-6 {
-    border-right: 2px solid;
+    border-right: 2px solid black;
 }
 .cell.y-4,
 .cell.y-7 {
-    border-left: 2px solid;
+    border-left: 2px solid black;
 }
 
 .buttons {
@@ -72,17 +77,11 @@ body {
     justify-content: space-between;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
-    -webkit-appearance: none;
-    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
-}
-
-input[type='number'] {
-    -moz-appearance: textfield; /* Firefox */
-}
 .invalidInput {
     background-color: red;
+    color: white;
+}
+.validInput {
+    background-color: green;
     color: white;
 }

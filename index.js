@@ -1,15 +1,9 @@
 const sudoku = (function () {
-    const board = {
-        original: null,
-        copyForValidation: null,
-    };
+    let board = null;
 
     function checkRow(currentCell, num) {
         for (let i = 0; i < 9; i++) {
-            if (
-                board.original[currentCell.x][i] === num &&
-                i !== currentCell.y
-            ) {
+            if (board[currentCell.x][i] === num && i !== currentCell.y) {
                 return false;
             }
         }
@@ -18,10 +12,7 @@ const sudoku = (function () {
 
     function checkCol(currentCell, num) {
         for (let i = 0; i < 9; i++) {
-            if (
-                board.original[i][currentCell.y] === num &&
-                i !== currentCell.x
-            ) {
+            if (board[i][currentCell.y] === num && i !== currentCell.x) {
                 return false;
             }
         }
@@ -41,7 +32,7 @@ const sudoku = (function () {
         for (let i = squareRange.x.start; i <= squareRange.x.end; i++) {
             for (let j = squareRange.y.start; j <= squareRange.y.end; j++) {
                 if (
-                    board.original[i][j] === num &&
+                    board[i][j] === num &&
                     (i !== currentCell.x || j !== currentCell.y)
                 ) {
                     return false;
@@ -59,39 +50,24 @@ const sudoku = (function () {
         );
     }
 
-    //board input validation before solving
-    function findFullCellOnBoardCopyForValidation() {
+    function validateBoard() {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
-                if (board.copyForValidation[x][y]) {
-                    return { x, y };
+                if (board[x][y]) {
+                    if (!validateCell({ x, y }, board[x][y])) {
+                        return false;
+                    }
                 }
             }
         }
-        return false;
-    }
-
-    function validateBoard() {
-        const fullCell = findFullCellOnBoardCopyForValidation();
-        if (!fullCell) return true;
-        else if (
-            validateCell(
-                fullCell,
-                board.copyForValidation[fullCell.x][fullCell.y]
-            )
-        ) {
-            board.copyForValidation[fullCell.x][fullCell.y] = '';
-            if (validateBoard()) return true;
-        }
-
-        return false;
+        return true;
     }
 
     // board solving
     function findEmptyCell() {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
-                if (!board.original[x][y]) {
+                if (!board[x][y]) {
                     return { x, y };
                 }
             }
@@ -104,33 +80,33 @@ const sudoku = (function () {
         if (!emptyCell) return true;
         for (let num = 1; num <= 9; num++) {
             if (validateCell(emptyCell, num)) {
-                board.original[emptyCell.x][emptyCell.y] = num;
+                board[emptyCell.x][emptyCell.y] = num;
                 if (solve()) {
                     return true;
                 }
             }
-            board.original[emptyCell.x][emptyCell.y] = '';
+            board[emptyCell.x][emptyCell.y] = '';
         }
         return false;
     }
 
     function setBoard(newBoard) {
         if (Array.isArray(newBoard)) {
-            board.original = JSON.parse(JSON.stringify(newBoard));
-            board.copyForValidation = JSON.parse(JSON.stringify(newBoard));
+            board = JSON.parse(JSON.stringify(newBoard));
         }
     }
 
     function getBoard() {
-        return board.original;
+        return board;
     }
 
-    return { setBoard, getBoard, solve, validateBoard };
+    return { setBoard, getBoard, solve, validateBoard, validateCell };
 })();
 
 const htmlGame = {
     solveBtn: document.querySelector('.solve-btn'),
     clearBtn: document.querySelector('.clear-btn'),
+    board: document.querySelector('.board'),
     cells: null,
 
     buildGridBoard: function () {
@@ -139,7 +115,9 @@ const htmlGame = {
             for (let j = 0; j < 9; j++) {
                 const cell = document.createElement('input');
                 cell.classList.add('cell', `x-${i + 1}`, `y-${j + 1}`);
-                cell.setAttribute('type', 'text');
+                cell.setAttribute('type', 'tex');
+                cell.setAttribute('maxLength', '1');
+                cell.setAttribute('inputmode', 'numeric');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
                 board.append(cell);
@@ -164,6 +142,12 @@ const htmlGame = {
         return sudoku.validateBoard();
     },
 
+    isCellValid: function (cell, value) {
+        const board = this.get2DArray();
+        sudoku.setBoard(board);
+        return sudoku.validateCell(cell, value);
+    },
+
     solve: function () {
         const board = this.get2DArray();
         sudoku.setBoard(board);
@@ -182,35 +166,75 @@ const htmlGame = {
 
     clearBoard: function () {
         const cells = document.querySelectorAll('.cell');
-        cells.forEach((cell) => (cell.value = ''));
+        cells.forEach((cell) => {
+            cell.value = '';
+            cell.classList.remove('validInput');
+            cell.classList.remove('invalidInput');
+        });
     },
 
-    checkUserInput: function (e) {
-        userInput = e.target.value;
-        // user input data validation
-        if (
-            !userInput ||
-            (Number.isInteger(parseInt(userInput)) &&
-                1 <= parseInt(userInput) &&
-                parseInt(userInput) <= 9)
-        ) {
-            document
-                .querySelector(
-                    `input[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`
-                )
-                .classList.remove('invalidInput');
-        } else {
-            document
-                .querySelector(
-                    `input[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`
-                )
-                .classList.add('invalidInput');
-        }
+    markValidCell: function (cell) {
+        cell.classList.add('validInput');
+        cell.classList.remove('invalidInput');
+    },
 
-        // valid board check
-        if (htmlGame.isBoardValid())
+    markInvalidCell: function (cell) {
+        cell.classList.add('invalidInput');
+        cell.classList.remove('validInput');
+    },
+
+    blankCell: function (cell) {
+        cell.value = '';
+        cell.classList.remove('validInput');
+        cell.classList.remove('invalidInput');
+    },
+
+    checkSolveButtonState: function () {
+        if (htmlGame.isBoardValid()) {
             htmlGame.solveBtn.classList.remove('disabled');
-        else htmlGame.solveBtn.classList.add('disabled');
+            htmlGame.solveBtn.innerText = 'Solve!';
+        } else {
+            htmlGame.solveBtn.classList.add('disabled');
+            htmlGame.solveBtn.innerText = 'Invalid board';
+        }
+    },
+
+    validateUserInput: function (e) {
+        const cell = e.target;
+        const cellPosition = {
+            x: parseInt(e.target.dataset.x),
+            y: parseInt(e.target.dataset.y),
+        };
+        // enable solve button for valid boards only
+        htmlGame.checkSolveButtonState();
+        // validate user input
+        if (/[0-9]/.test(e.target.value)) {
+            // if input is number and makes valid board
+            if (htmlGame.isCellValid(cellPosition, parseInt(e.target.value))) {
+                htmlGame.markValidCell(cell);
+                cell.nextElementSibling.focus();
+            } else {
+                htmlGame.markInvalidCell(cell);
+            }
+            // invalid characters
+        } else {
+            htmlGame.blankCell(cell);
+        }
+    },
+
+    updateBoardAfterChange: function (cell) {
+        if (!cell.value) return;
+        const cellPosition = {
+            x: parseInt(cell.dataset.x),
+            y: parseInt(cell.dataset.y),
+        };
+        // enable solve button for valid boards only
+        htmlGame.checkSolveButtonState();
+        if (htmlGame.isCellValid(cellPosition, parseInt(cell.value))) {
+            htmlGame.markValidCell(cell);
+        } else {
+            htmlGame.markInvalidCell(cell);
+        }
     },
 };
 
@@ -219,9 +243,19 @@ const main = (function () {
         htmlGame.buildGridBoard();
         htmlGame.cells = document.querySelectorAll('.cell');
         htmlGame.cells.forEach((cell) => {
-            cell.addEventListener('input', htmlGame.checkUserInput);
+            cell.addEventListener('input', htmlGame.validateUserInput);
         });
     });
+
+    ['focusout', 'keydown', 'keyup', 'click', 'touchstart'].forEach(
+        (eventType) => {
+            htmlGame.board.addEventListener(eventType, (e) => {
+                htmlGame.cells.forEach((cell) =>
+                    htmlGame.updateBoardAfterChange(cell)
+                );
+            });
+        }
+    );
 
     htmlGame.solveBtn.addEventListener('click', function (e) {
         const result = htmlGame.solve();
