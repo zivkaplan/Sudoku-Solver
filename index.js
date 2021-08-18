@@ -1,5 +1,6 @@
 const sudoku = (function () {
     let board;
+    let boardCopyForValidation;
 
     function checkRow(currentCell, num) {
         for (let i = 0; i < 9; i++) {
@@ -50,10 +51,11 @@ const sudoku = (function () {
         );
     }
 
-    function findEmptyCell() {
+    //board input validation before solving
+    function findFullCellOnBoardCopyForValidation() {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
-                if (!board[x][y]) {
+                if (boardCopyForValidation[x][y]) {
                     return { x, y };
                 }
             }
@@ -61,10 +63,27 @@ const sudoku = (function () {
         return false;
     }
 
-    function findFullCell() {
+    function validateBoard() {
+        const fullCell = findFullCellOnBoardCopyForValidation();
+        if (!fullCell) return true;
+        else if (
+            validateCell(
+                fullCell,
+                boardCopyForValidation[fullCell.x][fullCell.y]
+            )
+        ) {
+            boardCopyForValidation[fullCell.x][fullCell.y] = '';
+            if (validateBoard()) return true;
+        }
+
+        return false;
+    }
+
+    // board solving
+    function findEmptyCell() {
         for (let x = 0; x < 9; x++) {
             for (let y = 0; y < 9; y++) {
-                if (board[x][y]) {
+                if (!board[x][y]) {
                     return { x, y };
                 }
             }
@@ -87,20 +106,10 @@ const sudoku = (function () {
         return false;
     }
 
-    function validateBoard() {
-        const fullCell = findFullCell();
-        if (!fullCell) return true;
-        for (let num = 1; num <= 9; num++) {
-            if (validateCell(fullCell, board[fullCell.x][fullCell.y])) {
-                if (validateBoard()) return true;
-            }
-        }
-        return false;
-    }
-
     function setBoard(newBoard) {
         if (Array.isArray(newBoard)) {
-            board = newBoard;
+            board = newBoard.slice();
+            boardCopyForValidation = newBoard.slice();
         }
     }
 
@@ -142,8 +151,13 @@ const htmlGame = {
     solve: function () {
         const board = this.get2DArray();
         sudoku.setBoard(board);
-        if (sudoku.validateBoard()) return sudoku.solve();
-        return false;
+        if (!sudoku.validateBoard()) {
+            return { status: false, data: 'Invalid Board' };
+        }
+        if (!sudoku.solve()) {
+            return { status: false, data: 'Unsovable Board' };
+        }
+        return { status: true, data: sudoku.getBoard() };
     },
 
     showSolution: function (board) {
@@ -171,11 +185,11 @@ const main = (function () {
     });
 
     htmlGame.solveBtn.addEventListener('click', function (e) {
-        if (htmlGame.solve()) {
-            const solvedBoard = sudoku.getBoard();
-            htmlGame.showSolution(solvedBoard);
+        const result = htmlGame.solve();
+        if (result.status) {
+            htmlGame.showSolution(result.data);
         } else {
-            alert('Unsolvable Puzzle!');
+            alert(result.data);
         }
     });
 
