@@ -125,22 +125,21 @@ const sudoku = (function () {
         return board.original;
     }
 
-    function getValidationBoard() {
-        return board.copyForValidation;
-    }
-    return { setBoard, getBoard, solve, validateBoard, getValidationBoard };
+    return { setBoard, getBoard, solve, validateBoard };
 })();
 
 const htmlGame = {
+    solveBtn: document.querySelector('.solve-btn'),
+    clearBtn: document.querySelector('.clear-btn'),
+    cells: null,
+
     buildGridBoard: function () {
         const board = document.querySelector('.board');
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
                 const cell = document.createElement('input');
                 cell.classList.add('cell', `x-${i + 1}`, `y-${j + 1}`);
-                cell.setAttribute('type', 'number');
-                cell.setAttribute('min', '0');
-                cell.setAttribute('max', '9');
+                cell.setAttribute('type', 'text');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
                 board.append(cell);
@@ -159,16 +158,18 @@ const htmlGame = {
         return board;
     },
 
+    isBoardValid: function () {
+        const board = this.get2DArray();
+        sudoku.setBoard(board);
+        return sudoku.validateBoard();
+    },
+
     solve: function () {
         const board = this.get2DArray();
         sudoku.setBoard(board);
-        if (!sudoku.validateBoard()) {
-            return { status: false, data: 'Invalid Board' };
-        }
         if (!sudoku.solve()) {
             return { status: false, data: 'Unsovable Board' };
         }
-        console.log(sudoku.getBoard(), sudoku.getValidationBoard());
         return { status: true, data: sudoku.getBoard() };
     },
 
@@ -184,14 +185,42 @@ const htmlGame = {
         cells.forEach((cell) => (cell.value = ''));
     },
 
-    solveBtn: document.querySelector('.solve-btn'),
+    checkUserInput: function (e) {
+        userInput = e.target.value;
+        // user input data validation
+        if (
+            !userInput ||
+            (Number.isInteger(parseInt(userInput)) &&
+                1 <= parseInt(userInput) &&
+                parseInt(userInput) <= 9)
+        ) {
+            document
+                .querySelector(
+                    `input[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`
+                )
+                .classList.remove('invalidInput');
+        } else {
+            document
+                .querySelector(
+                    `input[data-x="${e.target.dataset.x}"][data-y="${e.target.dataset.y}"]`
+                )
+                .classList.add('invalidInput');
+        }
 
-    clearBtn: document.querySelector('.clear-btn'),
+        // valid board check
+        if (htmlGame.isBoardValid())
+            htmlGame.solveBtn.classList.remove('disabled');
+        else htmlGame.solveBtn.classList.add('disabled');
+    },
 };
 
 const main = (function () {
     window.addEventListener('load', function (e) {
         htmlGame.buildGridBoard();
+        htmlGame.cells = document.querySelectorAll('.cell');
+        htmlGame.cells.forEach((cell) => {
+            cell.addEventListener('input', htmlGame.checkUserInput);
+        });
     });
 
     htmlGame.solveBtn.addEventListener('click', function (e) {
