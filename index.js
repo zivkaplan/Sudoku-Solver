@@ -114,6 +114,7 @@ const htmlGame = {
     clearBtn: document.querySelector('.clear-btn'),
     board: document.querySelector('.board'),
     cells: null,
+    toggleDarkModeBtn: document.querySelector('.toggleDarkMode'),
 
     buildGridBoard: function () {
         const board = document.querySelector('.board');
@@ -246,6 +247,7 @@ const htmlGame = {
 
 const main = (function () {
     window.addEventListener('load', (e) => {
+        document.getElementById('toggle1').checked = false;
         htmlGame.buildGridBoard();
         htmlGame.cells = document.querySelectorAll('.cell');
         htmlGame.cells.forEach((cell) => {
@@ -329,5 +331,15 @@ const main = (function () {
                 return;
             }
         }
+    });
+
+    htmlGame.toggleDarkModeBtn.addEventListener('click', (e) => {
+        if (document.getElementById('toggle1').checked) {
+            document.querySelector('body').classList.remove('light');
+            document.querySelector('body').classList.add('dark');
+            return;
+        }
+        document.querySelector('body').classList.add('light');
+        document.querySelector('body').classList.remove('dark');
     });
 })();
