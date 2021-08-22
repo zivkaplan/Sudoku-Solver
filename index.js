@@ -100,7 +100,13 @@ const sudoku = (function () {
         return board;
     }
 
-    return { setBoard, getBoard, solve, validateBoard, validateCell };
+    return {
+        setBoard,
+        getBoard,
+        solve,
+        validateBoard,
+        validateCell,
+    };
 })();
 
 const htmlGame = {
@@ -239,12 +245,13 @@ const htmlGame = {
 };
 
 const main = (function () {
-    window.addEventListener('load', function (e) {
+    window.addEventListener('load', (e) => {
         htmlGame.buildGridBoard();
         htmlGame.cells = document.querySelectorAll('.cell');
         htmlGame.cells.forEach((cell) => {
             cell.addEventListener('input', htmlGame.validateUserInput);
         });
+        document.querySelector('.cell').focus();
     });
 
     ['focusout', 'keydown', 'keyup', 'click', 'touchstart'].forEach(
@@ -257,7 +264,7 @@ const main = (function () {
         }
     );
 
-    htmlGame.solveBtn.addEventListener('click', function (e) {
+    htmlGame.solveBtn.addEventListener('click', (e) => {
         const result = htmlGame.solve();
         if (result.status) {
             htmlGame.showSolution(result.data);
@@ -267,4 +274,60 @@ const main = (function () {
     });
 
     htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
+
+    window.addEventListener('keydown', (e) => {
+        if (!document.activeElement.classList.contains('cell')) return;
+        // Checking for Backspace.
+        if (e.keyCode == 8) {
+            if (!e.target.value && document.activeElement.previousSibling) {
+                return document.activeElement.previousSibling.focus();
+            }
+        }
+        // left arrow
+        if (e.keyCode == 37) {
+            const previousCell = document.activeElement.previousSibling;
+            if (previousCell) {
+                previousCell.focus();
+                previousCell.select();
+                e.preventDefault();
+                return;
+            }
+        }
+        // right arrow
+        if (e.keyCode == 39) {
+            const nextCell = document.activeElement.nextSibling;
+            if (nextCell) {
+                nextCell.focus();
+                nextCell.select();
+                e.preventDefault();
+                return;
+            }
+        }
+        // up arrow
+        if (e.keyCode == 38) {
+            let currentEl = document.activeElement;
+            for (let i = 0; i < 9; i++) {
+                currentEl = currentEl.previousSibling;
+            }
+            if (currentEl) {
+                currentEl.focus();
+                currentEl.select();
+                e.preventDefault();
+                return;
+            }
+        }
+        // down arrow
+        if (e.keyCode == 40) {
+            let currentEl = document.activeElement;
+            for (let i = 0; i < 9; i++) {
+                currentEl = currentEl.nextSibling;
+            }
+            if (currentEl) {
+                currentEl.focus();
+                currentEl.select();
+                e.preventDefault();
+                return;
+            }
+        }
+    });
 })();
