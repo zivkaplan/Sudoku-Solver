@@ -7,6 +7,7 @@
 :root {
     --main-bg-color-light: #dfdddd;
     --main-primary-light: #393e46;
+    --main-text-color-light: #393e46;
     --cell-border-color-light: black;
     --board-border-color-light: blue;
     --cell-bg-color-light: #eeeeee;
@@ -15,6 +16,7 @@
 
     --main-bg-color-dark: #232931;
     --main-primary-dark: #4ecca3;
+    --main-text-color-dark: #eeeeee;
     --cell-border-color-dark: #eeeeee;
     --cell-bg-color-dark: #393e46;
     --board-border-color-dark: rgb(7, 203, 203);
@@ -27,6 +29,7 @@
 
 .dark {
     --bg: var(--main-bg-color-dark);
+    --main-text-color: var(--main-text-color-dark);
     --primary: var(--main-primary-dark);
     --board-border: var(--board-border-color-dark);
     --cell-border: var(--cell-border-color-dark);
@@ -37,6 +40,7 @@
 
 .light {
     --bg: var(--main-bg-color-light);
+    --main-text-color: var(--main-text-color-light);
     --primary: var(--main-primary-light);
     --board-border: var(--board-border-color-light);
     --cell-border: var(--cell-border-color-light);
@@ -53,14 +57,15 @@ body {
     align-items: center;
     background-color: var(--bg);
     caret-color: var(--caret-color);
-    color: var(--primary);
     transition: color 300ms ease-in-out, background-color 300ms ease-in-out;
 }
 
 ::selection {
     background-color: var(--selection-color);
 }
-
+.h1 {
+    color: var(--primary);
+}
 .container {
     display: flex;
     flex-direction: column;
@@ -89,8 +94,9 @@ body {
     border-radius: 0%;
     border: 1px solid var(--cell-border);
     padding: 0%;
-    font-weight: 500;
+    font-weight: 400;
     background-color: var(--cell-bg);
+    color: var(--main-text-color);
     transition: transform 100ms ease-in, color 150ms ease-in-out,
         background-color 150ms ease-in-out;
 }
