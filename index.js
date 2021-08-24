@@ -167,31 +167,10 @@ const htmlGame = {
     },
 
     showSolution: function (board) {
-<<<<<<< HEAD
-        const cells = document.querySelectorAll('input.cell');
-        cells.forEach((cell) => {
-            cell.value = cell.dataset.solution;
-            cell.setAttribute('title', '');
-        });
-    },
-    revealCell: function (e) {
-        if (!e.target.dataset.solution) return;
-        e.target.classList.add('revealed');
-        e.target.value = e.target.dataset.solution;
-    },
-
-    writeSolutionToHtml: function (board) {
-        const cells = document.querySelectorAll('input.cell');
-        cells.forEach((cell) => {
-            cell.setAttribute('title', 'click to reveal');
-            cell.dataset.solution = board[cell.dataset.x][cell.dataset.y];
-        });
-=======
         const cells = document.querySelectorAll('.cell');
         cells.forEach(
             (cell) => (cell.value = board[cell.dataset.x][cell.dataset.y])
         );
->>>>>>> parent of 361749a (update e.keyCode to e.code)
     },
 
     clearBoard: function () {
@@ -362,59 +341,8 @@ const main = (function () {
                 return;
             }
         }
-<<<<<<< HEAD
-    },
-};
-
-const main = (function () {
-    window.addEventListener('load', (e) => {
-        document.getElementById('toggle1').checked = false;
-        htmlGame.buildGridBoard();
-        htmlGame.cells = document.querySelectorAll('input.cell');
-        htmlGame.cells.forEach((cell) => {
-            cell.addEventListener('input', htmlGame.validateUserInput);
-            cell.addEventListener('click', htmlGame.revealCell);
-        });
-        document.querySelector('input.cell').focus();
     });
 
-    ['focusout', 'keydown', 'keyup', 'click', 'touchstart'].forEach(
-        (eventType) => {
-            htmlGame.board.addEventListener(eventType, (e) => {
-                htmlGame.cells.forEach((cell) =>
-                    htmlGame.updateBoardAfterChange(cell)
-                );
-            });
-        }
-    );
-
-    htmlGame.solveBtn.addEventListener('click', (e) => {
-        const result = htmlGame.solve();
-        if (result.isSolvable) {
-            htmlGame.writeSolutionToHtml(result.data);
-            htmlGame.solveBtn.classList.add('d-none');
-            htmlGame.showSolutionBtn.classList.remove('d-none');
-            htmlGame.cells.forEach((cell) => {
-                cell.readOnly = true;
-                if (!cell.value) cell.value = '?';
-            });
-        } else {
-            alert(result.data);
-        }
-    });
-
-    htmlGame.showSolutionBtn.addEventListener('click', () => {
-        htmlGame.showSolution();
-    });
-
-    htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
-
-    window.addEventListener('keydown', htmlGame.handleKeyPress);
-
-=======
-    });
-
->>>>>>> parent of 361749a (update e.keyCode to e.code)
     htmlGame.toggleDarkModeBtn.addEventListener('click', (e) => {
         if (document.getElementById('toggle1').checked) {
             document.querySelector('body').classList.remove('light');
