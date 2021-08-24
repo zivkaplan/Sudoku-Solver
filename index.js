@@ -136,7 +136,7 @@ const htmlGame = {
 
     get2DArray: function () {
         const board = [...Array(9)].map((e) => Array(9));
-        const cells = document.querySelectorAll('input.cell');
+        const cells = document.querySelectorAll('.cell');
         cells.forEach(
             (cell) =>
                 (board[cell.dataset.x][cell.dataset.y] =
@@ -167,6 +167,7 @@ const htmlGame = {
     },
 
     showSolution: function (board) {
+<<<<<<< HEAD
         const cells = document.querySelectorAll('input.cell');
         cells.forEach((cell) => {
             cell.value = cell.dataset.solution;
@@ -185,10 +186,16 @@ const htmlGame = {
             cell.setAttribute('title', 'click to reveal');
             cell.dataset.solution = board[cell.dataset.x][cell.dataset.y];
         });
+=======
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(
+            (cell) => (cell.value = board[cell.dataset.x][cell.dataset.y])
+        );
+>>>>>>> parent of 361749a (update e.keyCode to e.code)
     },
 
     clearBoard: function () {
-        const cells = document.querySelectorAll('input.cell');
+        const cells = document.querySelectorAll('.cell');
         cells.forEach((cell) => {
             cell.value = '';
             cell.classList.remove('validInput');
@@ -267,24 +274,50 @@ const htmlGame = {
             htmlGame.markInvalidCell(cell);
         }
     },
-    handleKeyPress: function (e) {
+};
+
+const main = (function () {
+    window.addEventListener('load', (e) => {
+        document.getElementById('toggle1').checked = false;
+        htmlGame.buildGridBoard();
+        htmlGame.cells = document.querySelectorAll('.cell');
+        htmlGame.cells.forEach((cell) => {
+            cell.addEventListener('input', htmlGame.validateUserInput);
+        });
+        document.querySelector('.cell').focus();
+    });
+
+    ['focusout', 'keydown', 'keyup', 'click', 'touchstart'].forEach(
+        (eventType) => {
+            htmlGame.board.addEventListener(eventType, (e) => {
+                htmlGame.cells.forEach((cell) =>
+                    htmlGame.updateBoardAfterChange(cell)
+                );
+            });
+        }
+    );
+
+    htmlGame.solveBtn.addEventListener('click', (e) => {
+        const result = htmlGame.solve();
+        if (result.status) {
+            htmlGame.showSolution(result.data);
+        } else {
+            alert(result.data);
+        }
+    });
+
+    htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
+
+    window.addEventListener('keydown', (e) => {
         if (!document.activeElement.classList.contains('cell')) return;
-        // handle delete and submit
-        if (e.code == 'Backspace') {
+        // Checking for Backspace.
+        if (e.keyCode == 8) {
             if (!e.target.value && document.activeElement.previousSibling) {
                 return document.activeElement.previousSibling.focus();
             }
         }
-        if (
-            e.code == 'Enter' &&
-            !htmlGame.solveBtn.classList.contains('disabled')
-        ) {
-            document.activeElement.blur();
-            htmlGame.solveBtn.click();
-            return;
-        }
-        // handle arrows
-        if (e.code == 'ArrowLeft') {
+        // left arrow
+        if (e.keyCode == 37) {
             const previousCell = document.activeElement.previousSibling;
             if (previousCell) {
                 previousCell.focus();
@@ -293,8 +326,8 @@ const htmlGame = {
                 return;
             }
         }
-
-        if (e.code == 'ArrowRight') {
+        // right arrow
+        if (e.keyCode == 39) {
             const nextCell = document.activeElement.nextSibling;
             if (nextCell) {
                 nextCell.focus();
@@ -303,8 +336,8 @@ const htmlGame = {
                 return;
             }
         }
-
-        if (e.code == 'ArrowUp') {
+        // up arrow
+        if (e.keyCode == 38) {
             let currentEl = document.activeElement;
             for (let i = 0; i < 9; i++) {
                 currentEl = currentEl.previousSibling;
@@ -316,8 +349,8 @@ const htmlGame = {
                 return;
             }
         }
-
-        if (e.code == 'ArrowDown') {
+        // down arrow
+        if (e.keyCode == 40) {
             let currentEl = document.activeElement;
             for (let i = 0; i < 9; i++) {
                 currentEl = currentEl.nextSibling;
@@ -329,6 +362,7 @@ const htmlGame = {
                 return;
             }
         }
+<<<<<<< HEAD
     },
 };
 
@@ -377,6 +411,10 @@ const main = (function () {
 
     window.addEventListener('keydown', htmlGame.handleKeyPress);
 
+=======
+    });
+
+>>>>>>> parent of 361749a (update e.keyCode to e.code)
     htmlGame.toggleDarkModeBtn.addEventListener('click', (e) => {
         if (document.getElementById('toggle1').checked) {
             document.querySelector('body').classList.remove('light');
