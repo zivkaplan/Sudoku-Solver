@@ -111,6 +111,7 @@ const sudoku = (function () {
 
 const htmlGame = {
     solveBtn: document.querySelector('.solve-btn'),
+    showSolutionBtn: document.querySelector('.show-solution-btn'),
     clearBtn: document.querySelector('.clear-btn'),
     board: document.querySelector('.board'),
     cells: null,
@@ -127,6 +128,7 @@ const htmlGame = {
                 cell.setAttribute('inputmode', 'numeric');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
+                cell.dataset.solution = '';
                 board.append(cell);
             }
         }
@@ -134,7 +136,7 @@ const htmlGame = {
 
     get2DArray: function () {
         const board = [...Array(9)].map((e) => Array(9));
-        const cells = document.querySelectorAll('input.cell');
+        const cells = document.querySelectorAll('.cell');
         cells.forEach(
             (cell) =>
                 (board[cell.dataset.x][cell.dataset.y] =
@@ -159,25 +161,32 @@ const htmlGame = {
         const board = this.get2DArray();
         sudoku.setBoard(board);
         if (!sudoku.solve()) {
-            return { status: false, data: 'Unsovable Board' };
+            return { isSolvable: false, data: 'Unsovable Board' };
         }
-        return { status: true, data: sudoku.getBoard() };
+        return { isSolvable: true, data: sudoku.getBoard() };
     },
 
     showSolution: function (board) {
-        const cells = document.querySelectorAll('input.cell');
+        const cells = document.querySelectorAll('.cell');
         cells.forEach(
             (cell) => (cell.value = board[cell.dataset.x][cell.dataset.y])
         );
     },
 
     clearBoard: function () {
-        const cells = document.querySelectorAll('input.cell');
+        const cells = document.querySelectorAll('.cell');
         cells.forEach((cell) => {
             cell.value = '';
             cell.classList.remove('validInput');
             cell.classList.remove('invalidInput');
+            cell.classList.remove('revealed');
+
+            cell.dataset.solution = '';
+            cell.readOnly = false;
+            cell.setAttribute('title', '');
         });
+        htmlGame.solveBtn.classList.remove('d-none');
+        htmlGame.showSolutionBtn.classList.add('d-none');
     },
 
     markValidCell: function (cell) {
@@ -214,6 +223,7 @@ const htmlGame = {
         };
         // enable solve button for valid boards only
         htmlGame.checkSolveButtonState();
+
         // validate user input
         if (/[0-9]/.test(e.target.value)) {
             // if input is number and makes valid board
@@ -230,7 +240,7 @@ const htmlGame = {
     },
 
     updateBoardAfterChange: function (cell) {
-        if (!cell.value) return;
+        if (!cell.value || cell.dataset.solution) return;
         const cellPosition = {
             x: parseInt(cell.dataset.x),
             y: parseInt(cell.dataset.y),
@@ -243,80 +253,17 @@ const htmlGame = {
             htmlGame.markInvalidCell(cell);
         }
     },
-    handleKeyPress: function (e) {
-        if (!document.activeElement.classList.contains('cell')) return;
-        // handle delete and submit
-        if (e.code == 'Backspace') {
-            if (!e.target.value && document.activeElement.previousSibling) {
-                return document.activeElement.previousSibling.focus();
-            }
-        }
-        if (
-            e.code == 'Enter' &&
-            !htmlGame.solveBtn.classList.contains('disabled')
-        ) {
-            document.activeElement.blur();
-            htmlGame.solveBtn.click();
-            return;
-        }
-        // handle arrows
-        if (e.code == 'ArrowLeft') {
-            const previousCell = document.activeElement.previousSibling;
-            if (previousCell) {
-                previousCell.focus();
-                previousCell.select();
-                e.preventDefault();
-                return;
-            }
-        }
-
-        if (e.code == 'ArrowRight') {
-            const nextCell = document.activeElement.nextSibling;
-            if (nextCell) {
-                nextCell.focus();
-                nextCell.select();
-                e.preventDefault();
-                return;
-            }
-        }
-
-        if (e.code == 'ArrowUp') {
-            let currentEl = document.activeElement;
-            for (let i = 0; i < 9; i++) {
-                currentEl = currentEl.previousSibling;
-            }
-            if (currentEl) {
-                currentEl.focus();
-                currentEl.select();
-                e.preventDefault();
-                return;
-            }
-        }
-
-        if (e.code == 'ArrowDown') {
-            let currentEl = document.activeElement;
-            for (let i = 0; i < 9; i++) {
-                currentEl = currentEl.nextSibling;
-            }
-            if (currentEl) {
-                currentEl.focus();
-                currentEl.select();
-                e.preventDefault();
-                return;
-            }
-        }
-    },
 };
 
 const main = (function () {
     window.addEventListener('load', (e) => {
         document.getElementById('toggle1').checked = false;
         htmlGame.buildGridBoard();
-        htmlGame.cells = document.querySelectorAll('input.cell');
+        htmlGame.cells = document.querySelectorAll('.cell');
         htmlGame.cells.forEach((cell) => {
             cell.addEventListener('input', htmlGame.validateUserInput);
         });
-        document.querySelector('input.cell').focus();
+        document.querySelector('.cell').focus();
     });
 
     ['focusout', 'keydown', 'keyup', 'click', 'touchstart'].forEach(
@@ -340,7 +287,61 @@ const main = (function () {
 
     htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
 
-    window.addEventListener('keydown', htmlGame.handleKeyPress);
+    window.addEventListener('keydown', (e) => {
+        if (!document.activeElement.classList.contains('cell')) return;
+        // Checking for Backspace.
+        if (e.keyCode == 8) {
+            if (!e.target.value && document.activeElement.previousSibling) {
+                return document.activeElement.previousSibling.focus();
+            }
+        }
+        // left arrow
+        if (e.keyCode == 37) {
+            const previousCell = document.activeElement.previousSibling;
+            if (previousCell) {
+                previousCell.focus();
+                previousCell.select();
+                e.preventDefault();
+                return;
+            }
+        }
+        // right arrow
+        if (e.keyCode == 39) {
+            const nextCell = document.activeElement.nextSibling;
+            if (nextCell) {
+                nextCell.focus();
+                nextCell.select();
+                e.preventDefault();
+                return;
+            }
+        }
+        // up arrow
+        if (e.keyCode == 38) {
+            let currentEl = document.activeElement;
+            for (let i = 0; i < 9; i++) {
+                currentEl = currentEl.previousSibling;
+            }
+            if (currentEl) {
+                currentEl.focus();
+                currentEl.select();
+                e.preventDefault();
+                return;
+            }
+        }
+        // down arrow
+        if (e.keyCode == 40) {
+            let currentEl = document.activeElement;
+            for (let i = 0; i < 9; i++) {
+                currentEl = currentEl.nextSibling;
+            }
+            if (currentEl) {
+                currentEl.focus();
+                currentEl.select();
+                e.preventDefault();
+                return;
+            }
+        }
+    });
 
     htmlGame.toggleDarkModeBtn.addEventListener('click', (e) => {
         if (document.getElementById('toggle1').checked) {
