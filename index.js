@@ -111,6 +111,7 @@ const sudoku = (function () {
 
 const htmlGame = {
     solveBtn: document.querySelector('.solve-btn'),
+    showSolutionBtn: document.querySelector('.show-solution-btn'),
     clearBtn: document.querySelector('.clear-btn'),
     board: document.querySelector('.board'),
     cells: null,
@@ -127,6 +128,7 @@ const htmlGame = {
                 cell.setAttribute('inputmode', 'numeric');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
+                cell.dataset.solution = '';
                 board.append(cell);
             }
         }
@@ -159,16 +161,30 @@ const htmlGame = {
         const board = this.get2DArray();
         sudoku.setBoard(board);
         if (!sudoku.solve()) {
-            return { status: false, data: 'Unsovable Board' };
+            return { isSolvable: false, data: 'Unsovable Board' };
         }
-        return { status: true, data: sudoku.getBoard() };
+        return { isSolvable: true, data: sudoku.getBoard() };
     },
 
     showSolution: function (board) {
         const cells = document.querySelectorAll('input.cell');
-        cells.forEach(
-            (cell) => (cell.value = board[cell.dataset.x][cell.dataset.y])
-        );
+        cells.forEach((cell) => {
+            cell.value = cell.dataset.solution;
+            cell.setAttribute('title', '');
+        });
+    },
+    revealCell: function (e) {
+        if (!e.target.dataset.solution) return;
+        e.target.classList.add('revealed');
+        e.target.value = e.target.dataset.solution;
+    },
+
+    writeSolutionToHtml: function (board) {
+        const cells = document.querySelectorAll('input.cell');
+        cells.forEach((cell) => {
+            cell.setAttribute('title', 'click to reveal');
+            cell.dataset.solution = board[cell.dataset.x][cell.dataset.y];
+        });
     },
 
     clearBoard: function () {
@@ -177,7 +193,14 @@ const htmlGame = {
             cell.value = '';
             cell.classList.remove('validInput');
             cell.classList.remove('invalidInput');
+            cell.classList.remove('revealed');
+
+            cell.dataset.solution = '';
+            cell.readOnly = false;
+            cell.setAttribute('title', '');
         });
+        htmlGame.solveBtn.classList.remove('d-none');
+        htmlGame.showSolutionBtn.classList.add('d-none');
     },
 
     markValidCell: function (cell) {
@@ -214,6 +237,7 @@ const htmlGame = {
         };
         // enable solve button for valid boards only
         htmlGame.checkSolveButtonState();
+
         // validate user input
         if (/[0-9]/.test(e.target.value)) {
             // if input is number and makes valid board
@@ -230,7 +254,7 @@ const htmlGame = {
     },
 
     updateBoardAfterChange: function (cell) {
-        if (!cell.value) return;
+        if (!cell.value || cell.dataset.solution) return;
         const cellPosition = {
             x: parseInt(cell.dataset.x),
             y: parseInt(cell.dataset.y),
@@ -315,6 +339,7 @@ const main = (function () {
         htmlGame.cells = document.querySelectorAll('input.cell');
         htmlGame.cells.forEach((cell) => {
             cell.addEventListener('input', htmlGame.validateUserInput);
+            cell.addEventListener('click', htmlGame.revealCell);
         });
         document.querySelector('input.cell').focus();
     });
@@ -331,11 +356,21 @@ const main = (function () {
 
     htmlGame.solveBtn.addEventListener('click', (e) => {
         const result = htmlGame.solve();
-        if (result.status) {
-            htmlGame.showSolution(result.data);
+        if (result.isSolvable) {
+            htmlGame.writeSolutionToHtml(result.data);
+            htmlGame.solveBtn.classList.add('d-none');
+            htmlGame.showSolutionBtn.classList.remove('d-none');
+            htmlGame.cells.forEach((cell) => {
+                cell.readOnly = true;
+                if (!cell.value) cell.value = '?';
+            });
         } else {
             alert(result.data);
         }
+    });
+
+    htmlGame.showSolutionBtn.addEventListener('click', () => {
+        htmlGame.showSolution();
     });
 
     htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
