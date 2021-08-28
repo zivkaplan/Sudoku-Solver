@@ -58,6 +58,7 @@ body {
     background-color: var(--bg);
     caret-color: var(--caret-color);
     transition: color 300ms ease-in-out, background-color 300ms ease-in-out;
+    color: var(--main-text-color);
 }
 
 ::selection {
@@ -135,12 +136,18 @@ body {
     border-left-width: 2px;
 }
 
+.buttons-container {
+    width: 100%;
+}
+
 .buttons {
     display: flex;
     width: 100%;
     justify-content: space-between;
 }
-
+.click-cell-desc {
+    width: 50%;
+}
 .invalidInput {
     background-color: red;
     color: white;

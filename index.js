@@ -112,6 +112,7 @@ const sudoku = (function () {
 const htmlGame = {
     solveBtn: document.querySelector('.solve-btn'),
     showSolutionBtn: document.querySelector('.show-solution-btn'),
+    clickCellDesc: document.querySelector('.click-cell-desc'),
     clearBtn: document.querySelector('.clear-btn'),
     board: document.querySelector('.board'),
     cells: null,
@@ -174,7 +175,11 @@ const htmlGame = {
         });
     },
     revealCell: function (e) {
-        if (!e.target.dataset.solution) return;
+        if (
+            !e.target.dataset.solution ||
+            htmlGame.showSolutionBtn.classList.contains('disabled')
+        )
+            return;
         e.target.classList.add('revealed');
         e.target.value = e.target.dataset.solution;
     },
@@ -200,7 +205,9 @@ const htmlGame = {
             cell.setAttribute('title', '');
         });
         htmlGame.solveBtn.classList.remove('d-none');
+        htmlGame.showSolutionBtn.classList.remove('disabled');
         htmlGame.showSolutionBtn.classList.add('d-none');
+        htmlGame.clickCellDesc.classList.add('d-none');
     },
 
     markValidCell: function (cell) {
@@ -336,7 +343,9 @@ const main = (function () {
     window.addEventListener('load', (e) => {
         document.getElementById('toggle1').checked = false;
         htmlGame.buildGridBoard();
+
         htmlGame.cells = document.querySelectorAll('input.cell');
+
         htmlGame.cells.forEach((cell) => {
             cell.addEventListener('input', htmlGame.validateUserInput);
             cell.addEventListener('click', htmlGame.revealCell);
@@ -360,6 +369,7 @@ const main = (function () {
             htmlGame.writeSolutionToHtml(result.data);
             htmlGame.solveBtn.classList.add('d-none');
             htmlGame.showSolutionBtn.classList.remove('d-none');
+            htmlGame.clickCellDesc.classList.remove('d-none');
             htmlGame.cells.forEach((cell) => {
                 cell.readOnly = true;
                 if (!cell.value) cell.value = '?';
@@ -371,6 +381,8 @@ const main = (function () {
 
     htmlGame.showSolutionBtn.addEventListener('click', () => {
         htmlGame.showSolution();
+        htmlGame.showSolutionBtn.classList.add('disabled');
+        htmlGame.clickCellDesc.classList.add('d-none');
     });
 
     htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
