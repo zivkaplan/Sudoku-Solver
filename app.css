@@ -58,14 +58,17 @@ body {
     background-color: var(--bg);
     caret-color: var(--caret-color);
     transition: color 300ms ease-in-out, background-color 300ms ease-in-out;
+    color: var(--main-text-color);
 }
 
 ::selection {
     background-color: var(--selection-color);
 }
+
 .h1 {
     color: var(--primary);
 }
+
 .container {
     display: flex;
     flex-direction: column;
@@ -110,33 +113,31 @@ body {
 .cell.x-9 {
     border-bottom: 0px;
 }
-
 .cell.x-3,
 .cell.x-6 {
     border-bottom-width: 2px;
 }
-
 .cell.x-4,
 .cell.x-7 {
     border-top-width: 2px;
 }
-
 .cell.y-1 {
     border-left-width: 0px;
 }
-
 .cell.y-9 {
     border-right-width: 0px;
 }
-
 .cell.y-3,
 .cell.y-6 {
     border-right-width: 2px;
 }
-
 .cell.y-4,
 .cell.y-7 {
     border-left-width: 2px;
+}
+
+.buttons-container {
+    width: 100%;
 }
 
 .buttons {
@@ -144,7 +145,9 @@ body {
     width: 100%;
     justify-content: space-between;
 }
-
+.click-cell-desc {
+    width: 50%;
+}
 .invalidInput {
     background-color: red;
     color: white;
