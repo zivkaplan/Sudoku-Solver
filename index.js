@@ -109,7 +109,7 @@ const sudoku = (function () {
     };
 })();
 
-const htmlGame = {
+const cacheDOM = {
     solveBtn: document.querySelector('.solve-btn'),
     showSolutionBtn: document.querySelector('.show-solution-btn'),
     clickCellDesc: document.querySelector('.click-cell-desc'),
@@ -117,9 +117,10 @@ const htmlGame = {
     board: document.querySelector('.board'),
     cells: null,
     toggleDarkModeBtn: document.querySelector('.toggleDarkMode'),
+};
 
+const htmlGame = {
     buildGridBoard: function () {
-        const board = document.querySelector('.board');
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
                 const cell = document.createElement('input');
@@ -129,15 +130,16 @@ const htmlGame = {
                 cell.setAttribute('inputmode', 'numeric');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
-                board.append(cell);
+
+                cell.dataset.solution = '';
+                cacheDOM.board.append(cell);
             }
         }
     },
 
     get2DArray: function () {
         const board = [...Array(9)].map((e) => Array(9));
-        const cells = document.querySelectorAll('input.cell');
-        cells.forEach(
+        cacheDOM.cells.forEach(
             (cell) =>
                 (board[cell.dataset.x][cell.dataset.y] =
                     parseInt(cell.value) || '')
@@ -166,10 +168,9 @@ const htmlGame = {
         return { status: true, data: sudoku.getBoard() };
     },
 
-    showSolution: function (board) {
-        const cells = document.querySelectorAll('input.cell');
 
-        cells.forEach((cell) => {
+    showSolution: function () {
+        cacheDOM.cells.forEach((cell) => {
             cell.value = cell.dataset.solution;
             cell.setAttribute('title', '');
         });
@@ -177,7 +178,7 @@ const htmlGame = {
     revealCell: function (e) {
         if (
             !e.target.dataset.solution ||
-            htmlGame.showSolutionBtn.classList.contains('disabled')
+            cacheDOM.showSolutionBtn.classList.contains('disabled')
         )
             return;
         e.target.classList.add('revealed');
@@ -185,26 +186,22 @@ const htmlGame = {
     },
 
     writeSolutionToHtml: function (board) {
-        const cells = document.querySelectorAll('input.cell');
-        cells.forEach((cell) => {
+        cacheDOM.cells.forEach((cell) => {
             cell.setAttribute('title', 'click to reveal');
             cell.dataset.solution = board[cell.dataset.x][cell.dataset.y];
         });
     },
 
     clearBoard: function () {
-        htmlGame.board.dataset.isSolved = '';
-        const cells = document.querySelectorAll('input.cell');
-        cells.forEach((cell) => {
+        cacheDOM.cells.forEach((cell) => {
             cell.value = '';
             cell.classList.remove('validInput');
             cell.classList.remove('invalidInput');
         });
-
-        htmlGame.solveBtn.classList.remove('d-none');
-        htmlGame.showSolutionBtn.classList.remove('disabled');
-        htmlGame.showSolutionBtn.classList.add('d-none');
-        htmlGame.clickCellDesc.classList.add('d-none');
+        cacheDOM.solveBtn.classList.remove('d-none');
+        cacheDOM.showSolutionBtn.classList.remove('disabled');
+        cacheDOM.showSolutionBtn.classList.add('d-none');
+        cacheDOM.clickCellDesc.classList.add('d-none');
     },
 
     markValidCell: function (cell) {
@@ -225,11 +222,11 @@ const htmlGame = {
 
     checkSolveButtonState: function () {
         if (htmlGame.isBoardValid()) {
-            htmlGame.solveBtn.classList.remove('disabled');
-            htmlGame.solveBtn.innerText = 'Solve!';
+            cacheDOM.solveBtn.classList.remove('disabled');
+            cacheDOM.solveBtn.innerText = 'Solve!';
         } else {
-            htmlGame.solveBtn.classList.add('disabled');
-            htmlGame.solveBtn.innerText = 'Invalid board';
+            cacheDOM.solveBtn.classList.add('disabled');
+            cacheDOM.solveBtn.innerText = 'Invalid board';
         }
     },
 
@@ -270,6 +267,7 @@ const htmlGame = {
             htmlGame.markInvalidCell(cell);
         }
     },
+
     handleKeyPress: function (e) {
         if (!document.activeElement.classList.contains('cell')) return;
         // handle delete and submit
@@ -280,10 +278,10 @@ const htmlGame = {
         }
         if (
             e.code == 'Enter' &&
-            !htmlGame.solveBtn.classList.contains('disabled')
+            !cacheDOM.solveBtn.classList.contains('disabled')
         ) {
             document.activeElement.blur();
-            htmlGame.solveBtn.click();
+            cacheDOM.solveBtn.click();
             return;
         }
         // handle arrows
@@ -335,37 +333,44 @@ const htmlGame = {
     },
 };
 
-const main = (function () {
-    window.addEventListener('load', (e) => {
-        document.getElementById('toggle1').checked = false;
-        htmlGame.buildGridBoard();
+const main = (async function () {
+    const setUpHtml = function () {
+        return new Promise((resolve) => {
+            document.getElementById('toggle1').checked = false;
+            htmlGame.buildGridBoard();
 
-        htmlGame.cells = document.querySelectorAll('input.cell');
-
-        htmlGame.cells.forEach((cell) => {
-            cell.addEventListener('input', htmlGame.validateUserInput);
+            // save to cacheDOM object for later use
+            cacheDOM.cells = document.querySelectorAll('input.cell');
+            cacheDOM.cells[0].focus();
+            resolve();
         });
-        document.querySelector('input.cell').focus();
+    };
+
+    await setUpHtml();
+
+    cacheDOM.cells.forEach((cell) => {
+        cell.addEventListener('input', htmlGame.validateUserInput);
+        cell.addEventListener('click', htmlGame.revealCell);
     });
 
     ['focusout', 'keydown', 'keyup', 'click', 'touchstart'].forEach(
         (eventType) => {
-            htmlGame.board.addEventListener(eventType, (e) => {
-                htmlGame.cells.forEach((cell) =>
+            cacheDOM.board.addEventListener(eventType, (e) => {
+                cacheDOM.cells.forEach((cell) =>
                     htmlGame.updateBoardAfterChange(cell)
                 );
             });
         }
     );
 
-    htmlGame.solveBtn.addEventListener('click', (e) => {
+    cacheDOM.solveBtn.addEventListener('click', (e) => {
         const result = htmlGame.solve();
         if (result.isSolvable) {
             htmlGame.writeSolutionToHtml(result.data);
-            htmlGame.solveBtn.classList.add('d-none');
-            htmlGame.showSolutionBtn.classList.remove('d-none');
-            htmlGame.clickCellDesc.classList.remove('d-none');
-            htmlGame.cells.forEach((cell) => {
+            cacheDOM.solveBtn.classList.add('d-none');
+            cacheDOM.showSolutionBtn.classList.remove('d-none');
+            cacheDOM.clickCellDesc.classList.remove('d-none');
+            cacheDOM.cells.forEach((cell) => {
                 cell.readOnly = true;
                 if (!cell.value) cell.value = '?';
             });
@@ -375,18 +380,17 @@ const main = (function () {
     });
 
 
-    htmlGame.showSolutionBtn.addEventListener('click', () => {
+    cacheDOM.showSolutionBtn.addEventListener('click', () => {
         htmlGame.showSolution();
-        htmlGame.showSolutionBtn.classList.add('disabled');
-        htmlGame.clickCellDesc.classList.add('d-none');
+        cacheDOM.showSolutionBtn.classList.add('disabled');
+        cacheDOM.clickCellDesc.classList.add('d-none');
     });
 
-
-    htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
+    cacheDOM.clearBtn.addEventListener('click', htmlGame.clearBoard);
 
     window.addEventListener('keydown', htmlGame.handleKeyPress);
 
-    htmlGame.toggleDarkModeBtn.addEventListener('click', (e) => {
+    cacheDOM.toggleDarkModeBtn.addEventListener('click', (e) => {
         if (document.getElementById('toggle1').checked) {
             document.querySelector('body').classList.remove('light');
             document.querySelector('body').classList.add('dark');
