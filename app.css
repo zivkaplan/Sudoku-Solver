@@ -157,6 +157,11 @@ body {
     color: white;
 }
 
+.revealed {
+    background-color: orange;
+    color: white;
+}
+
 input[type='radio']:checked ~ span:before {
     border: 5px solid var(--blue);
 }

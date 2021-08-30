@@ -130,7 +130,6 @@ const htmlGame = {
                 cell.setAttribute('inputmode', 'numeric');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
-
                 cell.dataset.solution = '';
                 cacheDOM.board.append(cell);
             }
@@ -163,11 +162,10 @@ const htmlGame = {
         const board = this.get2DArray();
         sudoku.setBoard(board);
         if (!sudoku.solve()) {
-            return { status: false, data: 'Unsovable Board' };
+            return { isSolvable: false, data: 'Unsovable Board' };
         }
-        return { status: true, data: sudoku.getBoard() };
+        return { isSolvable: true, data: sudoku.getBoard() };
     },
-
 
     showSolution: function () {
         cacheDOM.cells.forEach((cell) => {
@@ -197,6 +195,11 @@ const htmlGame = {
             cell.value = '';
             cell.classList.remove('validInput');
             cell.classList.remove('invalidInput');
+            cell.classList.remove('revealed');
+
+            cell.dataset.solution = '';
+            cell.readOnly = false;
+            cell.setAttribute('title', '');
         });
         cacheDOM.solveBtn.classList.remove('d-none');
         cacheDOM.showSolutionBtn.classList.remove('disabled');
@@ -238,6 +241,7 @@ const htmlGame = {
         };
         // enable solve button for valid boards only
         htmlGame.checkSolveButtonState();
+
         // validate user input
         if (/[0-9]/.test(e.target.value)) {
             // if input is number and makes valid board
@@ -254,7 +258,7 @@ const htmlGame = {
     },
 
     updateBoardAfterChange: function (cell) {
-        if (!cell.value || htmlGame.board.dataset.isSolved) return;
+        if (!cell.value || cell.dataset.solution) return;
         const cellPosition = {
             x: parseInt(cell.dataset.x),
             y: parseInt(cell.dataset.y),
@@ -342,6 +346,7 @@ const main = (async function () {
             // save to cacheDOM object for later use
             cacheDOM.cells = document.querySelectorAll('input.cell');
             cacheDOM.cells[0].focus();
+
             resolve();
         });
     };
@@ -378,7 +383,6 @@ const main = (async function () {
             alert(result.data);
         }
     });
-
 
     cacheDOM.showSolutionBtn.addEventListener('click', () => {
         htmlGame.showSolution();
