@@ -129,7 +129,6 @@ const htmlGame = {
                 cell.setAttribute('inputmode', 'numeric');
                 cell.dataset.x = i;
                 cell.dataset.y = j;
-                cell.dataset.solution = '';
                 board.append(cell);
             }
         }
@@ -162,13 +161,14 @@ const htmlGame = {
         const board = this.get2DArray();
         sudoku.setBoard(board);
         if (!sudoku.solve()) {
-            return { isSolvable: false, data: 'Unsovable Board' };
+            return { status: false, data: 'Unsovable Board' };
         }
-        return { isSolvable: true, data: sudoku.getBoard() };
+        return { status: true, data: sudoku.getBoard() };
     },
 
     showSolution: function (board) {
         const cells = document.querySelectorAll('input.cell');
+
         cells.forEach((cell) => {
             cell.value = cell.dataset.solution;
             cell.setAttribute('title', '');
@@ -193,17 +193,14 @@ const htmlGame = {
     },
 
     clearBoard: function () {
+        htmlGame.board.dataset.isSolved = '';
         const cells = document.querySelectorAll('input.cell');
         cells.forEach((cell) => {
             cell.value = '';
             cell.classList.remove('validInput');
             cell.classList.remove('invalidInput');
-            cell.classList.remove('revealed');
-
-            cell.dataset.solution = '';
-            cell.readOnly = false;
-            cell.setAttribute('title', '');
         });
+
         htmlGame.solveBtn.classList.remove('d-none');
         htmlGame.showSolutionBtn.classList.remove('disabled');
         htmlGame.showSolutionBtn.classList.add('d-none');
@@ -244,7 +241,6 @@ const htmlGame = {
         };
         // enable solve button for valid boards only
         htmlGame.checkSolveButtonState();
-
         // validate user input
         if (/[0-9]/.test(e.target.value)) {
             // if input is number and makes valid board
@@ -261,7 +257,7 @@ const htmlGame = {
     },
 
     updateBoardAfterChange: function (cell) {
-        if (!cell.value || cell.dataset.solution) return;
+        if (!cell.value || htmlGame.board.dataset.isSolved) return;
         const cellPosition = {
             x: parseInt(cell.dataset.x),
             y: parseInt(cell.dataset.y),
@@ -348,7 +344,6 @@ const main = (function () {
 
         htmlGame.cells.forEach((cell) => {
             cell.addEventListener('input', htmlGame.validateUserInput);
-            cell.addEventListener('click', htmlGame.revealCell);
         });
         document.querySelector('input.cell').focus();
     });
@@ -379,11 +374,13 @@ const main = (function () {
         }
     });
 
+
     htmlGame.showSolutionBtn.addEventListener('click', () => {
         htmlGame.showSolution();
         htmlGame.showSolutionBtn.classList.add('disabled');
         htmlGame.clickCellDesc.classList.add('d-none');
     });
+
 
     htmlGame.clearBtn.addEventListener('click', htmlGame.clearBoard);
 
