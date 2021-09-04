@@ -7,6 +7,7 @@ Try it [here](https://zivkaplan.github.io/Sudoku-Solver/)
 
 -   Backtracking sudoku solving algorithm
 -   responsive
+-   Dark/light theme toggle
 -   input validation
 -   control with keyboard
 
